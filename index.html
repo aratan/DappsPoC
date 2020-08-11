@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="author" content="Victor Arbiol">
+	<title>Banca Amiga - blockchain local ganache</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+		integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+
+<body>
+	<!-- Menu comienzo -->
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark ml-auto">
+		<div class="container-fluid">
+			<img id="logo" src="https://crowdestor.com/assets/public/dist/images/favicon.png" alt="logo corporativo" />
+
+			<!-- As a link -->
+			<nav class="navbar navbar-dark bg-dark">
+				<a class="navbar-brand" href="#">Inicio</a>
+				<a class="navbar-brand" href="#Transf">Transferencia</a>
+				<a class="navbar-brand" href="mailto:victor.arbiol@gmail.com">Contactos</a>
+			</nav>
+		</div>
+		
+	</nav>
+	<!--Fin de menu -->
+	<main class="container">
+		
+		<h1 class="text-center">Banca amiga</h1>
+
+		<label for="name" class="col-lg-2 control-label">
+			<h3>NodeInfo</h3>
+		</label>
+
+		<input id="NodeInfo" type="text">
+		<p id="contrato">estado de contrato</p>
+		<hr>
+
+		<label for="name" class="col-lg-2 control-label">
+			<h3>Balance</h3>
+		</label>
+		<p>Account : <input id="Account" type="text"> </p>
+		<p>Balance : <input id="Balance" type="text"></p>
+		<button id="checkBalance">Check Balance</button>
+
+		<hr>
+		<label for="name" class="col-lg-2 control-label">
+			<h3 id="Transf">Transfer</h3>
+		</label>
+		<p>From : &nbsp &nbsp &nbsp <input id="From" type="text"> </p>
+		<p>To : &nbsp &nbsp &nbsp &nbsp &nbsp <input id="To" type="text"> </p>
+		<p>Amount : &nbsp <input id="Amount" type="text"></p>
+		<button id="Transfer">Transfer</button>
+		<p>Transaction Hash : &nbsp <a href="https://etherscan.io/address/" + id="Tx" ><span id="Tx"></span>   </a></p>
+
+		 <footer class="container-fluid my-5 text-center text-light bg-dark">2020 victor arbiol madrid</footer>
+	</main>
+
+	<script src="js/web3.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+		integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+	</script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+		integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+	</script>
+
+	<script>
+		$(document).ready(function () {
+			console.log("ready!");
+
+			if (typeof web3 !== 'undefined') {
+				web3 = new Web3(web3.currentProvider);
+			} else {
+				// set the provider you want from Web3.providers
+				web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			}
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			/* Get Node Info */
+			web3.eth.getNodeInfo(function (error, result) {
+				if (error) {
+					console.log("error", error);
+				} else {
+					console.log("result", result);
+					$('#NodeInfo').val(result);
+				}
+			});
+
+			/*Get Balance */
+			web3.eth.getAccounts(function (error, accounts) {
+				if (error) {
+					console.log(error);
+				}
+				$('#Account').val(accounts[0]);
+				web3.eth.getBalance(accounts[0]).then(function (result) {
+					console.log("Balance : ", web3.utils.fromWei(result, 'ether'));
+					$('#Balance').val(web3.utils.fromWei(result, 'ether'));
+				});
+			});
+
+			$('#checkBalance').click(function () {
+				var _account = $('#Account').val();
+				web3.eth.getBalance(_account).then(function (result) {
+					console.log("Balance : ", web3.utils.fromWei(result, 'ether'));
+					$('#Balance').val(web3.utils.fromWei(result, 'ether'));
+				});
+			});
+
+
+
+// contrato 
+			$(function(){
+				const address = '0x9a2dbcc1514537f7ec12a7bd6fce398eb0a0ccb8'
+
+				//interface
+				var abi = [{"constant":true,"inputs":[],"name":"getSaludo","outputs":[{"name":"","type":"string"}],"type":"function"},{"constant":false,"inputs":[{"name":"nuevoSaludo","type":"string"}],"name":"setSaludo","outputs":[{"name":"","type":"string"}],"type":"function"}]
+
+				const contract = new web3.eth.Contract(abi, address)
+
+				contract.methods.setSaludo('victor').call((err, result) => { console.log(result) })
+				contract.methods.getSaludo().call((err, result) => { console.log(result) })
+				contract.methods.getSaludo().call((err, result) => { $('#contrato').html(result) })
+			})
+// fin de contrato
+			
+			
+			
+/* Transfer */
+			$('#Transfer').click(function () {
+				$('#Tx').text('');
+				var _from = $('#From').val();
+				var _to = $('#To').val();
+				var _Amount = $('#Amount').val();
+				var txnObject = {
+					"from": _from,
+					"to": _to,
+					"value": web3.utils.toWei(_Amount, 'ether'),
+					// "gas": 21000,         (optional)
+					// "gasPrice": 4500000,  (optional)
+					// "data": 'For testing' (optional)
+					// "nonce": 10           (optional)
+				}
+				
+				web3.eth.sendTransaction(txnObject, function (error, result) {
+					if (error) {
+						console.log("Transaction error", error);
+					} else {
+						var txn_hash = result; //Get transaction hash
+						$('#Tx').text(txn_hash); 
+					}
+				});
+			});
+// fin transferencia
+		});
+	</script>
+</body>
+</html>

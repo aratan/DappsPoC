@@ -1,0 +1,48 @@
+* {
+/*Pasar de px a rem Alt+Z*/
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background-color:#F0F0F0;
+    
+}
+
+nav{
+    background-color:black;
+    color:white;
+        text-align:right;
+}
+
+li{
+    list-style:none;
+    display:inline-block;
+}
+
+img{height: 75px; width: 75px;}
+
+.container {
+    width: 50%;
+    margin: 0 auto;
+}
+label {
+    display:block;
+    margin-bottom:10px;
+}
+input {
+    padding:10px;
+    width: 50%;
+    margin-bottom: 1em;
+}
+button {
+    margin: 2em 0;
+    padding: 1em 4em;
+    display:block;
+}
+
+#instructor {
+    padding:1em;
+    background-color:#fff;
+    margin: 1em 0;
+}
